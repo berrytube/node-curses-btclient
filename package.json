@@ -1,7 +1,7 @@
 {
     "author": "cyzon",
     "name": "ncurses BerryTube client",
-    "description": "ncurses chat client for BerryTube",
+    "description": "curses-btclient",
     "version": "0.1",
     "repository": {
         "url": "http://github.com/berrytube/node-ncurses-btclient"
