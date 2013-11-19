@@ -24,5 +24,8 @@ Little berrytube chat client I whipped up in node this afternoon with ncurses.
 - `/clear`: Clears the message buffer
 - `/quit`: Cleanly quits the client
 
+### Screenshot
+![Screenshot](http://i.imgur.com/h0JaFSl.png)
+
 
 Code by cyzon.  Feel free to contribute suggestions and/or patches.  Cheers.
