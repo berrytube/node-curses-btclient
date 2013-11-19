@@ -8,6 +8,8 @@ Little berrytube chat client I whipped up in node this afternoon with ncurses.
 - View berrytube userlist
 - Log in as a guest name
 - Send messages
+- Reacts to resize events (SIGWINCH)
+- Displays notifications for video changes, polls
 
 ### Installation
 1. Clone this repo (`git clone https://github.com/berrytube/node-curses-btclient`)
