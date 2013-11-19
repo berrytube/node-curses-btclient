@@ -10,7 +10,7 @@ Little berrytube chat client I whipped up in node this afternoon with ncurses.
 - Send messages
 
 ### Installation
-1. Clone this repo (`git clone https://github.com/berrytube/node-ncurses-btclient`)
+1. Clone this repo (`git clone https://github.com/berrytube/node-curses-btclient`)
 2. Execute `npm install` in the directory to install dependencies
 
 ### Running
