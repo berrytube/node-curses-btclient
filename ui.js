@@ -142,16 +142,23 @@ UI.prototype.paintMessageBuffer = function () {
     }
     for (var i = lines.length - 1; i >= 0; i--) {
         var msg = lines[i];
-        if (msg.length < maxw) {
+        if (msg.msg.length < maxw) {
             split.push(msg);
         } else {
-            while (msg.length > maxw) {
-                split.push(msg.substring(0, maxw));
-                msg = msg.substring(maxw);
+            var inner = msg.msg;
+            while (inner.length > maxw) {
+                split.push({
+                    attr: msg.attr,
+                    msg: inner.substring(0, maxw)
+                });
+                inner = inner.substring(maxw);
             }
 
-            if (msg.length > 0) {
-                split.push(msg);
+            if (inner.length > 0) {
+                split.push({
+                    attr: msg.attr,
+                    msg: inner
+                });
             }
         }
     }
@@ -167,11 +174,18 @@ UI.prototype.paintMessageBuffer = function () {
         x += this.nicklist.width + 1;
     }
     for (var i = 0; i < split.length; i++) {
-        this.window.print(i, x, split[i]);
-        var x2 = x + split[i].length;
+        var msg = split[i];
+        if (msg.attr !== false) {
+            this.window.attron(msg.attr);
+        }
+        this.window.print(i, x, msg.msg);
+        var x2 = x + msg.msg.length;
         if (x2 < this.window.width) {
             this.window.cursor(i, x2);
             this.window.clrtoeol();
+        }
+        if (msg.attr !== false) {
+            this.window.attroff(msg.attr);
         }
     }
 
@@ -265,8 +279,15 @@ UI.prototype.removeUser = function (name) {
     this.paintUserlist();
 };
 
-UI.prototype.addMessage = function (user, message) {
-    this.messagebuffer.push('<' + user + '> ' + message);
+UI.prototype.addMessage = function (message, attr) {
+    if (isNaN(attr)) {
+        attr = false;
+    }
+    this.messagebuffer.push({
+        attr: attr,
+        msg: message
+    });
+    //this.messagebuffer.push('<' + user + '> ' + message);
     this.paintMessageBuffer();
 };
 

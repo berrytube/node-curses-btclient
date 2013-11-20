@@ -4,16 +4,18 @@ var UI = require('./ui').UI;
 var ui = new UI();
 ui.prompt = '[] ';
 
+var myNick = false;
+var colorPair = 1;
+var SQUEE = ncurses.attrs.REVERSE;
 var socket = io.connect('96.127.152.99:8344');
 
 socket.on('connect', function () {
-    ui.messagebuffer.push('-!- Connected to BerryTube');
-    ui.paintMessageBuffer();
+    ui.addMessage('-!- Connected to BerryTube');
     socket.emit('myPlaylistIsInited');
 });
 
 socket.on('newPoll', function (data) {
-    ui.messagebuffer.push('* ' + data.creator + ' opened poll: ' + data.title);
+    ui.addMessage('* ' + data.creator + ' opened poll: ' + data.title);
     ui.paintMessageBuffer();
 });
 
@@ -21,20 +23,21 @@ socket.on('chatMsg', function (data) {
     var nick = data.msg.nick;
     var msg = data.msg.msg;
     msg = msg.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+    var attr = false;
+    if (msg.match(new RegExp("(^|\\s)" + nick + "($|\\W)", "i"))) {
+        attr = SQUEE;
+    }
     switch (data.msg.emote) {
         case 'act':
-            ui.messagebuffer.push('* ' + nick + ' ' + msg);
-            ui.paintMessageBuffer();
+            ui.addMessage('* ' + nick + ' ' + msg, attr);
             break;
         case 'request':
-            ui.messagebuffer.push('* ' + nick + ' requests ' + msg);
-            ui.paintMessageBuffer();
+            ui.addMessage('* ' + nick + ' requests ' + msg, attr);
             break;
         case 'sweetiebot':
         case 'spoiler':
         case 'rcv':
-            ui.messagebuffer.push('<' + nick + '.' + data.msg.emote + '> ' + msg);
-            ui.paintMessageBuffer();
+            ui.addMessage('<' + nick + '.' + data.msg.emote + '> ' + msg, attr);
             break;
         case 'drink':
             var m2 = '[ <' + nick + '> ' + msg + ' drink!';
@@ -42,11 +45,10 @@ socket.on('chatMsg', function (data) {
                 m2 += ' (' + data.msg.multi + ')';
             }
             m2 += ' ]';
-            ui.messagebuffer.push(m2);
-            ui.paintMessageBuffer();
+            ui.addMessage(m2, attr);
             break;
         default:
-            ui.addMessage(nick, msg);
+            ui.addMessage('<' + nick + '> ' + msg, attr);
             break;
     }
 });
@@ -67,12 +69,13 @@ socket.on('userPart', function (data) {
 
 socket.on('forceVideoChange', function (data) {
     var title = unescape(data.video.videotitle);
-    ui.messagebuffer.push('-!- Now Playing: ' + title);
+    ui.addMessage('-!- Now Playing: ' + title);
     ui.paintMessageBuffer();
 });
 
 socket.on('setNick', function (nick) {
     ui.prompt = '[' + nick + '] ';
+    myNick = nick;
     ui.paintInput();
 });
 
