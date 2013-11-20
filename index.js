@@ -24,7 +24,7 @@ socket.on('chatMsg', function (data) {
     var msg = data.msg.msg;
     msg = msg.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
     var attr = false;
-    if (msg.match(new RegExp("(^|\\s)" + nick + "($|\\W)", "i"))) {
+    if (myNick && msg.match(new RegExp("(^|\\s)" + myNick + "($|\\W)", "i"))) {
         attr = SQUEE;
     }
     switch (data.msg.emote) {
