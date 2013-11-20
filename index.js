@@ -68,7 +68,7 @@ socket.on('userPart', function (data) {
 });
 
 socket.on('forceVideoChange', function (data) {
-    var title = unescape(data.video.videotitle);
+    var title = decodeURIComponent(data.video.videotitle);
     ui.addMessage('-!- Now Playing: ' + title);
     ui.paintMessageBuffer();
 });
