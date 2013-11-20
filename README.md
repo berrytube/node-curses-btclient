@@ -8,6 +8,8 @@ Little berrytube chat client I whipped up in node this afternoon with ncurses.
 - View berrytube userlist
 - Log in as a guest name
 - Send messages
+- Reacts to resize events (SIGWINCH)
+- Displays notifications for video changes, polls
 
 ### Installation
 1. Clone this repo (`git clone https://github.com/berrytube/node-curses-btclient`)
@@ -23,6 +25,9 @@ Little berrytube chat client I whipped up in node this afternoon with ncurses.
 - `/repaint`: Forces ncurses to redraw the whole screen
 - `/clear`: Clears the message buffer
 - `/quit`: Cleanly quits the client
+
+### Screenshot
+![Screenshot](http://i.imgur.com/h0JaFSl.png)
 
 
 Code by cyzon.  Feel free to contribute suggestions and/or patches.  Cheers.
