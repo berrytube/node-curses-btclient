@@ -1,6 +1,34 @@
 var ncurses = require('ncurses');
 var Window = ncurses.Window;
 
+function printFormatted(win, y, x, text) {
+    var parts = text.split('\x1b');
+    if (parts.length < 2) {
+        win.print(y, x, text);
+        return x + text.length;
+    }
+
+    for (var i = 0; i < parts.length; i++) {
+        var str = parts[i];
+        var j = str.indexOf(';');
+        if (j < 0) {
+            win.print(y, x, str);
+            x += str.length;
+            continue;
+        }
+        var attrs = str.substring(0, j).split(',');
+        str = str.substring(j+1);
+        var mask = 0;
+        for (j = 0; j < attrs.length; j++) {
+            mask = mask | parseInt(attrs[j]);
+        }
+        win.attrset(mask);
+        win.print(y, x, str);
+        x += str.length;
+    }
+    return x;
+}
+
 var UI = function () {
     this.window = new Window();
     this.nicklist = {
@@ -175,18 +203,22 @@ UI.prototype.paintMessageBuffer = function () {
     }
     for (var i = 0; i < split.length; i++) {
         var msg = split[i];
+        /*
         if (msg.attr !== false) {
             this.window.attron(msg.attr);
         }
-        this.window.print(i, x, msg.msg);
-        var x2 = x + msg.msg.length;
+        */
+        // x2 = position of end of formatted string
+        var x2 = printFormatted(this.window, i, x, msg.msg);
         if (x2 < this.window.width) {
             this.window.cursor(i, x2);
             this.window.clrtoeol();
         }
+        /*
         if (msg.attr !== false) {
             this.window.attroff(msg.attr);
         }
+        */
     }
 
     this.resetCursor();
