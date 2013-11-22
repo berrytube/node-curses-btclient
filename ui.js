@@ -1,5 +1,6 @@
 var ncurses = require('ncurses');
 var Window = ncurses.Window;
+var FormattedString = require('./formattedstring');
 
 function printFormatted(win, y, x, text) {
     var parts = text.split('\x1b');
@@ -170,11 +171,11 @@ UI.prototype.paintMessageBuffer = function () {
     }
     for (var i = lines.length - 1; i >= 0; i--) {
         var msg = lines[i];
-        if (msg.msg.length < maxw) {
+        if (msg.msg.length() < maxw) {
             split.push(msg);
         } else {
             var inner = msg.msg;
-            while (inner.length > maxw) {
+            while (inner.length() > maxw) {
                 split.push({
                     attr: msg.attr,
                     msg: inner.substring(0, maxw)
@@ -182,7 +183,7 @@ UI.prototype.paintMessageBuffer = function () {
                 inner = inner.substring(maxw);
             }
 
-            if (inner.length > 0) {
+            if (inner.length() > 0) {
                 split.push({
                     attr: msg.attr,
                     msg: inner
@@ -209,7 +210,7 @@ UI.prototype.paintMessageBuffer = function () {
         }
         */
         // x2 = position of end of formatted string
-        var x2 = printFormatted(this.window, i, x, msg.msg);
+        var x2 = printFormatted(this.window, i, x, msg.msg.toString());
         if (x2 < this.window.width) {
             this.window.cursor(i, x2);
             this.window.clrtoeol();
@@ -317,9 +318,8 @@ UI.prototype.addMessage = function (message, attr) {
     }
     this.messagebuffer.push({
         attr: attr,
-        msg: message
+        msg: new FormattedString(message)
     });
-    //this.messagebuffer.push('<' + user + '> ' + message);
     this.paintMessageBuffer();
 };
 

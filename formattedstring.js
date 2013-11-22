@@ -40,8 +40,10 @@ FormattedString.prototype = {
         ss.control = control;
         return ss;
     },
+
+    length: function () {
+        return this.inner.length;
+    }
 };
 
-var x = new FormattedString('a\u001b0,1,2;b\u001b0;c');
-console.log(x);
-console.log(x.substring(1).toString());
+module.exports = FormattedString;
