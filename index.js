@@ -7,6 +7,8 @@ ui.prompt = '[] ';
 var myNick = false;
 var colorPair = 1;
 var SQUEE = ncurses.attrs.REVERSE;
+ncurses.colorPair(colorPair, 13, 0);
+var FLUTTERS = ncurses.colorPair(colorPair++);
 var socket = io.connect('96.127.152.99:8344');
 
 socket.on('connect', function () {
@@ -25,7 +27,7 @@ socket.on('chatMsg', function (data) {
     msg = msg.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
     var attr = false;
     if (myNick && msg.match(new RegExp("(^|\\s)" + myNick + "($|\\W)", "i"))) {
-        attr = SQUEE;
+        msg = '\x1b' + SQUEE + ';' + msg + '\x1b0;';
     }
     switch (data.msg.emote) {
         case 'act':
@@ -37,17 +39,31 @@ socket.on('chatMsg', function (data) {
         case 'sweetiebot':
         case 'spoiler':
         case 'rcv':
-            ui.addMessage('<' + nick + '.' + data.msg.emote + '> ' + msg, attr);
+            msg = '<' + nick + '.' + data.msg.emote + '> ' + msg;
+            if (data.msg.emote === 'rcv')
+                msg = '\x1b' + ncurses.attrs.BOLD + ';' + msg + '\x1b0;';
+            ui.addMessage(msg, attr);
             break;
         case 'drink':
-            var m2 = '[ <' + nick + '> ' + msg + ' drink!';
+            var m2 = '\x1b' + ncurses.attrs.BOLD + ';';
+            m2 += '[ <' + nick + '> ' + msg + ' drink!';
             if (data.msg.multi > 1) {
                 m2 += ' (' + data.msg.multi + ')';
             }
-            m2 += ' ]';
+            m2 += ' ]\x1b0;';
             ui.addMessage(m2, attr);
             break;
         default:
+            msg = msg.replace(/<strong>(.*?)<\/strong>/g,
+                              '\x1b' + ncurses.attrs.BOLD + ';$1\x1b0;');
+            msg = msg.replace(/<em>(.*?)<\/em>/g,
+                              '\x1b' + ncurses.attrs.UNDERLINE + ';$1\x1b0;');
+            msg = msg.replace(/<strike>(.*?)<\/strike>/g,
+                              '~~$1~~');
+            msg = msg.replace(/<span class="flutter">(.*?)<\/span>/g,
+                              '\x1b' + FLUTTERS + ';$1\x1b0;');
+            msg = msg.replace(/<span style="font-family: monospace">(.*?)<\/span>/g,
+                              '`$1`');
             ui.addMessage('<' + nick + '> ' + msg, attr);
             break;
     }

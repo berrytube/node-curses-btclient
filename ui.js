@@ -1,5 +1,34 @@
 var ncurses = require('ncurses');
 var Window = ncurses.Window;
+var FormattedString = require('./formattedstring');
+
+function printFormatted(win, y, x, text) {
+    var parts = text.split('\x1b');
+    if (parts.length < 2) {
+        win.print(y, x, text);
+        return x + text.length;
+    }
+
+    for (var i = 0; i < parts.length; i++) {
+        var str = parts[i];
+        var j = str.indexOf(';');
+        if (j < 0) {
+            win.print(y, x, str);
+            x += str.length;
+            continue;
+        }
+        var attrs = str.substring(0, j).split(',');
+        str = str.substring(j+1);
+        var mask = 0;
+        for (j = 0; j < attrs.length; j++) {
+            mask = mask | parseInt(attrs[j]);
+        }
+        win.attrset(mask);
+        win.print(y, x, str);
+        x += str.length;
+    }
+    return x;
+}
 
 var UI = function () {
     this.window = new Window();
@@ -142,11 +171,11 @@ UI.prototype.paintMessageBuffer = function () {
     }
     for (var i = lines.length - 1; i >= 0; i--) {
         var msg = lines[i];
-        if (msg.msg.length < maxw) {
+        if (msg.msg.length() < maxw) {
             split.push(msg);
         } else {
             var inner = msg.msg;
-            while (inner.length > maxw) {
+            while (inner.length() > maxw) {
                 split.push({
                     attr: msg.attr,
                     msg: inner.substring(0, maxw)
@@ -154,7 +183,7 @@ UI.prototype.paintMessageBuffer = function () {
                 inner = inner.substring(maxw);
             }
 
-            if (inner.length > 0) {
+            if (inner.length() > 0) {
                 split.push({
                     attr: msg.attr,
                     msg: inner
@@ -175,18 +204,22 @@ UI.prototype.paintMessageBuffer = function () {
     }
     for (var i = 0; i < split.length; i++) {
         var msg = split[i];
+        /*
         if (msg.attr !== false) {
             this.window.attron(msg.attr);
         }
-        this.window.print(i, x, msg.msg);
-        var x2 = x + msg.msg.length;
+        */
+        // x2 = position of end of formatted string
+        var x2 = printFormatted(this.window, i, x, msg.msg.toString());
         if (x2 < this.window.width) {
             this.window.cursor(i, x2);
             this.window.clrtoeol();
         }
+        /*
         if (msg.attr !== false) {
             this.window.attroff(msg.attr);
         }
+        */
     }
 
     this.resetCursor();
@@ -285,9 +318,8 @@ UI.prototype.addMessage = function (message, attr) {
     }
     this.messagebuffer.push({
         attr: attr,
-        msg: message
+        msg: new FormattedString(message)
     });
-    //this.messagebuffer.push('<' + user + '> ' + message);
     this.paintMessageBuffer();
 };
 
