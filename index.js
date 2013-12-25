@@ -83,16 +83,21 @@ socket.on('userPart', function (data) {
     ui.removeUser(data.nick);
 });
 
+var currentTitle = false;
 socket.on('forceVideoChange', function (data) {
     var title = decodeURIComponent(data.video.videotitle);
     ui.addMessage('-!- Now Playing: ' + title);
     ui.paintMessageBuffer();
+    currentTitle = title;
+    repaintTitlebar();
 });
 
 socket.on('createPlayer', function (data) {
     var title = decodeURIComponent(data.video.videotitle);
     ui.addMessage('-!- Now Playing: ' + title);
     ui.paintMessageBuffer();
+    currentTitle = title;
+    repaintTitlebar();
 });
 
 socket.on('setNick', function (nick) {
@@ -123,6 +128,13 @@ var onMessage = function (line) {
         });
     }
 };
+
+function repaintTitlebar() {
+    if (currentTitle !== false) {
+        ui.titlebar.text = 'Current: ' + currentTitle;
+        ui.paintTitlebar();
+    }
+}
 
 ui.onMessage(onMessage);
 ui.paint();

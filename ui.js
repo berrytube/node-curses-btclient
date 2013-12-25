@@ -37,6 +37,10 @@ var UI = function () {
         width: 16,
         names: []
     };
+    this.titlebar = {
+        hidden: false,
+        text: ''
+    };
     var self = this;
     this.window.on('inputChar', function (char, charcode, isKey) {
         self.handleInput(char, charcode, isKey);
@@ -125,6 +129,7 @@ UI.prototype.handleLine = function (line) {
 UI.prototype.paint = function () {
     this.window.clear();
     this.paintDividers();
+    this.paintTitlebar();
     this.paintUserlist();
     this.paintMessageBuffer();
     this.paintInput();
@@ -139,6 +144,16 @@ UI.prototype.resetCursor = function () {
         cx = this.window.width - 1;
     }
     this.window.cursor(cy, cx);
+};
+
+UI.prototype.paintTitlebar = function () {
+    if (this.titlebar.hidden) {
+        return;
+    }
+    this.window.cursor(0, 0);
+    this.window.clrtoeol();
+    this.window.cursor(0, 0);
+    this.window.print(0, 0, this.titlebar.text.substring(0, this.window.width));
 };
 
 UI.prototype.paintInput = function () {
@@ -157,9 +172,15 @@ UI.prototype.paintInput = function () {
 };
 
 UI.prototype.paintMessageBuffer = function () {
+    var maxh = this.window.height - 2;
+    var y = 0;
+    if (!this.titlebar.hidden) {
+        maxh -= 2;
+        y = 2;
+    }
     // Step 1: Extract at most (height) messages in reverse order
     var lines = [];
-    for (var i = 0; i < this.messagebuffer.length && i < this.window.height - 2; i++) {
+    for (var i = 0; i < this.messagebuffer.length && i < maxh; i++) {
         lines.push(this.messagebuffer[this.messagebuffer.length - i - 1]);
     }
 
@@ -194,7 +215,7 @@ UI.prototype.paintMessageBuffer = function () {
     }
 
     // Step 3: Trim to fit screen
-    if (split.length > this.window.height - 2) {
+    if (split.length > maxh) {
         split.splice(0, split.length - (this.window.height - 2));
     }
 
@@ -211,9 +232,9 @@ UI.prototype.paintMessageBuffer = function () {
         }
         */
         // x2 = position of end of formatted string
-        var x2 = printFormatted(this.window, i, x, msg.msg.toString());
+        var x2 = printFormatted(this.window, i+y, x, msg.msg.toString());
         if (x2 < this.window.width) {
-            this.window.cursor(i, x2);
+            this.window.cursor(i+y, x2);
             this.window.clrtoeol();
         }
         /*
@@ -228,11 +249,20 @@ UI.prototype.paintMessageBuffer = function () {
 };
 
 UI.prototype.paintDividers = function () {
+    if (!this.titlebar.hidden) {
+        this.window.cursor(1, 0);
+        this.window.hline(this.window.width);
+    }
+
     /* Draw nicklist */
     if (!this.nicklist.hidden) {
         var x = this.nicklist.width;
-        this.window.cursor(0, x);
-        this.window.vline(this.window.height - 2);
+        var y = 2;
+        if (this.titlebar.hidden) {
+            y = 0;
+        }
+        this.window.cursor(y, x);
+        this.window.vline(this.window.height - 2 - y);
     }
 
     /* Draw divider for chat input bar */
@@ -249,18 +279,24 @@ UI.prototype.paintUserlist = function () {
         return;
     }
     var maxw = this.window.width - this.nicklist.width - 1;
-    for (var i = 0; i < this.nicklist.names.length && i < this.window.height - 2; i++) {
+    var maxh = this.window.height - 2;
+    var y = 0;
+    if (!this.titlebar.hidden) {
+        maxh -= 2;
+        y = 2;
+    }
+    for (var i = 0; i < this.nicklist.names.length && i < maxh; i++) {
         var user = this.nicklist.names[i];
-        this.window.print(i, 0, user.name.substring(0, maxw));
+        this.window.print(i+y, 0, user.name.substring(0, maxw));
         var x = user.name.length;
         if (x < this.nicklist.width) {
-            this.window.cursor(i, x);
+            this.window.cursor(i+y, x);
             this.window.hline(this.nicklist.width - x, 0x20);
         }
     }
 
-    for (var i = this.nicklist.names.length; i < this.window.height - 2; i++) {
-        this.window.cursor(i, 0);
+    for (var i = this.nicklist.names.length; i < maxh; i++) {
+        this.window.cursor(i+y, 0);
         this.window.hline(this.nicklist.width, 0x20);
     }
     this.resetCursor();
