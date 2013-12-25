@@ -89,6 +89,12 @@ socket.on('forceVideoChange', function (data) {
     ui.paintMessageBuffer();
 });
 
+socket.on('createPlayer', function (data) {
+    var title = decodeURIComponent(data.video.videotitle);
+    ui.addMessage('-!- Now Playing: ' + title);
+    ui.paintMessageBuffer();
+});
+
 socket.on('setNick', function (nick) {
     ui.prompt = '[' + nick + '] ';
     myNick = nick;
