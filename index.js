@@ -105,9 +105,13 @@ var onMessage = function (line) {
     var args = line.split(' ');
     var cmd = args[0].toLowerCase();
     if (cmd === '/nick') {
+        var pass = false;
+        if (args.length > 2) {
+            pass = args[2];
+        }
         socket.emit('setNick', {
             nick: args[1],
-            pass: false
+            pass: pass
         });
     } else {
         socket.emit('chat', {

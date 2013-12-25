@@ -19,7 +19,7 @@ Little berrytube chat client I whipped up in node this afternoon with ncurses.
 - Run `node index.js` in the root directory of the repository
 
 ### Commands
-- `/nick <name>`: Sends a `setNick` packet to berrytube to log you in as a guest user.  I haven't tested what happens if you do this more than once in one session, but I imagine it doesn't work.
+- `/nick <name> [<pass>]`: Sends a `setNick` packet to berrytube to log you in.  If `<pass>` is not provided, you will be logged in as a guest.
 - `/hide nicklist`: Hides the username list
 - `/show nicklist`: Shows the username list
 - `/repaint`: Forces ncurses to redraw the whole screen
