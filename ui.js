@@ -57,7 +57,8 @@ var UI = function () {
 UI.prototype.handleInput = function (char, charcode, isKey) {
     if (!isKey && charcode >= 32 && charcode <= 126) {
         this.inputbuffer += char;
-    } else if (charcode === 0x08 || charcode === 0x7f) { // Backspace
+    } else if (charcode === 0x08 || charcode === 0x7f ||
+               /* wtf xterm */ charcode === 0x107) { // Backspace
         if (this.inputbuffer.length > 0) {
             this.inputbuffer = this.inputbuffer.substring(0, this.inputbuffer.length - 1);
         }
