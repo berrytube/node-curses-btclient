@@ -109,11 +109,17 @@ UI.prototype.handleLine = function (line) {
         if (what.toLowerCase() === 'nicklist') {
             this.nicklist.hidden = true;
             this.paint();
+        } else if (what.toLowerCase() === 'titlebar') {
+            this.titlebar.hidden = true;
+            this.paint();
         }
     } else if (cmd === '/show') {
         var what = args[1];
         if (what.toLowerCase() === 'nicklist') {
             this.nicklist.hidden = false;
+            this.paint();
+        } else if (what.toLowerCase() === 'titlebar') {
+            this.titlebar.hidden = false;
             this.paint();
         }
     } else if (cmd === '/clear') {
