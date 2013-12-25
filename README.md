@@ -6,10 +6,10 @@ Little berrytube chat client I whipped up in node this afternoon with ncurses.
 ### Currently Implemented Features
 - View berrytube chat
 - View berrytube userlist
-- Log in as a guest name
+- Log in as a guest or regular user
 - Send messages
-- Reacts to resize events (SIGWINCH)
-- Displays notifications for video changes, polls
+- React to resize events (SIGWINCH)
+- Display notifications for video changes, polls
 
 ### Installation
 1. Clone this repo (`git clone https://github.com/berrytube/node-curses-btclient`)
@@ -22,6 +22,8 @@ Little berrytube chat client I whipped up in node this afternoon with ncurses.
 - `/nick <name> [<pass>]`: Sends a `setNick` packet to berrytube to log you in.  If `<pass>` is not provided, you will be logged in as a guest.
 - `/hide nicklist`: Hides the username list
 - `/show nicklist`: Shows the username list
+- `/hide titlebar`: Hides the title bar
+- `/show titlebar`: Shows the title bar
 - `/repaint`: Forces ncurses to redraw the whole screen
 - `/clear`: Clears the message buffer
 - `/quit`: Cleanly quits the client
