@@ -222,7 +222,7 @@ UI.prototype.paintMessageBuffer = function () {
 
     // Step 3: Trim to fit screen
     if (split.length > maxh) {
-        split.splice(0, split.length - (this.window.height - 2));
+        split.splice(0, split.length - maxh);
     }
 
     // Step 4: Render

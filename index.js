@@ -24,6 +24,17 @@ socket.on('newPoll', function (data) {
 socket.on('chatMsg', function (data) {
     var nick = data.msg.nick;
     var msg = data.msg.msg;
+    msg = msg.replace(/<strong>(.*?)<\/strong>/g,
+                      '\x1b' + ncurses.attrs.BOLD + ';$1\x1b0;');
+    msg = msg.replace(/<em>(.*?)<\/em>/g,
+                      '\x1b' + ncurses.attrs.UNDERLINE + ';$1\x1b0;');
+    msg = msg.replace(/<strike>(.*?)<\/strike>/g,
+                      '~~$1~~');
+    msg = msg.replace(/<span class="flutter">(.*?)<\/span>/g,
+                      '\x1b' + FLUTTERS + ';$1\x1b0;');
+    msg = msg.replace(/<span style="font-family: monospace">(.*?)<\/span>/g,
+                      '`$1`');
+    msg = msg.replace(/<.*?>/g, '');
     msg = msg.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
     var attr = false;
     if (myNick && msg.match(new RegExp("(^|\\s)" + myNick + "($|\\W)", "i"))) {
@@ -54,16 +65,6 @@ socket.on('chatMsg', function (data) {
             ui.addMessage(m2, attr);
             break;
         default:
-            msg = msg.replace(/<strong>(.*?)<\/strong>/g,
-                              '\x1b' + ncurses.attrs.BOLD + ';$1\x1b0;');
-            msg = msg.replace(/<em>(.*?)<\/em>/g,
-                              '\x1b' + ncurses.attrs.UNDERLINE + ';$1\x1b0;');
-            msg = msg.replace(/<strike>(.*?)<\/strike>/g,
-                              '~~$1~~');
-            msg = msg.replace(/<span class="flutter">(.*?)<\/span>/g,
-                              '\x1b' + FLUTTERS + ';$1\x1b0;');
-            msg = msg.replace(/<span style="font-family: monospace">(.*?)<\/span>/g,
-                              '`$1`');
             ui.addMessage('<' + nick + '> ' + msg, attr);
             break;
     }
@@ -104,6 +105,11 @@ socket.on('setNick', function (nick) {
     ui.prompt = '[' + nick + '] ';
     myNick = nick;
     ui.paintInput();
+});
+
+socket.on('kicked', function (reason) {
+    ui.addMessage('\x1b' + ncurses.attrs.BOLD + ';Kicked: ' + reason + '\x1b0;');
+    ui.paintMessageBuffer();
 });
 
 var onMessage = function (line) {
